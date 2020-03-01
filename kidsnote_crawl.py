@@ -1,3 +1,5 @@
+#-*- coding: utf-8 -*-
+
 # pip install selenium
 
 from selenium import webdriver
@@ -8,11 +10,12 @@ import datetime
 from urllib.request import urlopen
 import urllib.parse
 import json
-
+import chardet
 
 user_id = "user_id"
 user_pwd = "user_pwd"
 start_cnt = 1;
+comment_json = []
 
 with open('config.json') as config_file:
     data = json.load(config_file)
@@ -49,9 +52,13 @@ def to_yester_album():
 
 
 def read_comment():
-    comment  = driver.find_element_by_css_selector('div.report-detail-wrapper > div.report-detail > div.content-text').text
-    #TODO comment 저장 방안 확인
+    
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    comment = soup.select_one('div.report-detail-wrapper > div.report-detail > div.content-text').text.encode().decode()
     print(comment)
+    print(chardet.detect(comment.encode()))
+    # comment = driver.find_element_by_css_selector('div.report-detail-wrapper > div.report-detail > div.content-text').text
+    return comment
 
 def download_all_pic():
     pic_list = driver.find_elements_by_css_selector('#img-grid-container > div.grid > a.gallery-content')
@@ -67,10 +74,14 @@ def select_card_and_download(idx):
     card_list = driver.find_elements_by_css_selector('div.report-list-wrapper > a > div.card')
     card_list[idx].click()
     
+    comment_json.append({"date":get_report_date(), "comment":read_comment()})
+    
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     information_list = soup.select("#img-grid-container > div.grid > a.gallery-content")
+    '''
     if(len(information_list) > 0):
         download_all_pic()
+    '''
 
     driver.find_element_by_css_selector('div.button-group-wrapper > div.pull-right > a.btn.btn-default > i.kn.kn-list').click()
 
@@ -84,10 +95,10 @@ def retrieve_max_page_cnt():
     return (int(max_page_cnt))
 def get_report_date():
     report_date = driver.find_element_by_css_selector('div.content > div.sub-header > h3.sub-header-title').get_attribute('innerHTML')
-    this_time = datetime.datetime.strptime(report_date.strip()[:-4], '%Y년 %m월 %d일')
-    this_time_num = this_time.strftime('%Y%m%d')
+    this_time_t = datetime.datetime.strptime(report_date.strip()[:-4], '%Y년 %m월 %d일')
+    this_time_f = this_time_t.strftime('%Y%m%d')
 
-    return(this_time_num)
+    return(this_time_f)
 
 
 
@@ -103,10 +114,10 @@ if __name__ =="__main__":
         
         for idx in range(card_cnt):
             select_card_and_download(idx)
-  
-
-    
-    #TODO 다음 페이지 넘기기
+            break
+        break
+    with open('comments.json', 'w') as outfile:
+        json.dump(comment_json, outfile)
 
     '''
     req = driver.page_source
