@@ -12,6 +12,7 @@ import json
 
 user_id = "user_id"
 user_pwd = "user_pwd"
+start_cnt = 1;
 
 with open('config.json') as config_file:
     data = json.load(config_file)
@@ -61,7 +62,18 @@ def download_all_pic():
         download_file_name = today_date + "_"+ str(idx+1).zfill(2) +"."+ pic_url_parse.split(".")[-1]
         urllib.request.urlretrieve(pic_url_parse, "./images/" + download_file_name)
         print(download_file_name + " file saved")
+
+def select_card_and_download(idx):
+    card_list = driver.find_elements_by_css_selector('div.report-list-wrapper > a > div.card')
+    card_list[idx].click()
     
+    soup = BeautifulSoup(driver.page_source, 'html.parser')
+    information_list = soup.select("#img-grid-container > div.grid > a.gallery-content")
+    if(len(information_list) > 0):
+        download_all_pic()
+
+    driver.find_element_by_css_selector('div.button-group-wrapper > div.pull-right > a.btn.btn-default > i.kn.kn-list').click()
+
 
 
 def retrieve_card_cnt():
@@ -86,23 +98,15 @@ if __name__ =="__main__":
     
     card_cnt = len(driver.find_elements_by_css_selector('div.report-list-wrapper > a > div.card'))
 
-    for idx in range(card_cnt):
-        card_list = driver.find_elements_by_css_selector('div.report-list-wrapper > a > div.card')
-        card_list[idx].click()
+    for idx in range(start_cnt , retrieve_max_page_cnt()):
+        driver.find_element_by_link_text(str(idx+1)).click()
         
-        read_comment()
-        
-        soup = BeautifulSoup(driver.page_source, 'html.parser')
-        information_list = soup.select("#img-grid-container > div.grid > a.gallery-content")
-        if(len(information_list) > 0):
-            download_all_pic()
+        for idx in range(card_cnt):
+            select_card_and_download(idx)
+  
 
-        driver.find_element_by_css_selector('div.button-group-wrapper > div.pull-right > a.btn.btn-default > i.kn.kn-list').click()
     
     #TODO 다음 페이지 넘기기
-
-    #retrieve_max_page_cnt()
-    #retrieve_card_cnt()
 
     '''
     req = driver.page_source
