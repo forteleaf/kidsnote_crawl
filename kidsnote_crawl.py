@@ -13,7 +13,6 @@ import json
 
 user_id = "user_id"
 user_pwd = "user_pwd"
-start_cnt = 1;
 comment_json = []
 
 with open('config.json') as config_file:
@@ -75,11 +74,10 @@ def select_card_and_download(idx):
     
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     information_list = soup.select("#img-grid-container > div.grid > a.gallery-content")
-    '''
+    
     if(len(information_list) > 0):
         download_all_pic()
-    '''
-
+    
     driver.find_element_by_css_selector('div.button-group-wrapper > div.pull-right > a.btn.btn-default > i.kn.kn-list').click()
 
 
@@ -111,8 +109,7 @@ if __name__ =="__main__":
         
         for idx in range(card_cnt):
             select_card_and_download(idx)
-            break
-        break
+        
     with open('comments.json', 'w', encoding="utf-8") as outfile:
         json.dump(comment_json, outfile, ensure_ascii=False)
 
