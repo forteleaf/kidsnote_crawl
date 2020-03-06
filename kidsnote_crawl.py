@@ -10,7 +10,6 @@ import datetime
 from urllib.request import urlopen
 import urllib.parse
 import json
-import chardet
 
 user_id = "user_id"
 user_pwd = "user_pwd"
@@ -55,10 +54,8 @@ def read_comment():
     
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     comment = soup.select_one('div.report-detail-wrapper > div.report-detail > div.content-text').text.encode().decode()
-    print(comment)
-    print(chardet.detect(comment.encode()))
     # comment = driver.find_element_by_css_selector('div.report-detail-wrapper > div.report-detail > div.content-text').text
-    return comment
+    return comment.replace("\\n","").strip()
 
 def download_all_pic():
     pic_list = driver.find_elements_by_css_selector('#img-grid-container > div.grid > a.gallery-content')
@@ -116,8 +113,8 @@ if __name__ =="__main__":
             select_card_and_download(idx)
             break
         break
-    with open('comments.json', 'w') as outfile:
-        json.dump(comment_json, outfile)
+    with open('comments.json', 'w', encoding="utf-8") as outfile:
+        json.dump(comment_json, outfile, ensure_ascii=False)
 
     '''
     req = driver.page_source
