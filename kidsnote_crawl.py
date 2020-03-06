@@ -29,6 +29,7 @@ options.add_argument('headless') # headless 모드 설정
 driver = webdriver.Chrome("./chromedriver.exe", options=options)
 
 
+# config.json의 ID/PW를 통한 로그인
 def login():
     driver.get("https://www.kidsnote.com/login/")
 
@@ -38,25 +39,25 @@ def login():
     elem.send_keys(user_pwd)
     elem.send_keys(Keys.ENTER)
 
-
+# 호칭 설정
 def choose_family_role():
     driver.find_element_by_css_selector('div.header-inner > a#roleSelect').click()
     driver.find_element_by_css_selector('div.select-form-wrapper > div:nth-child(2) >  form').click()
 
-
+# 추억상자로 이동
 def to_yester_album():
     driver.find_element_by_css_selector('.dropdown-sidebar > .dropdown-toggle > .dropdown-title > h5').click()
     driver.find_element_by_css_selector('#feedActivateForm > div.dropdown-body > div.dropdown-title > h6').click()
     driver.find_element_by_css_selector('div.content > div#content-inner > h5 > a > span').click()
 
-
+# 알림장 선생님 글 읽기
 def read_comment():
-    
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     comment = soup.select_one('div.report-detail-wrapper > div.report-detail > div.content-text').text.encode().decode()
     # comment = driver.find_element_by_css_selector('div.report-detail-wrapper > div.report-detail > div.content-text').text
     return comment.replace("\\n","").strip()
 
+# 알림장 사진 다운로드
 def download_all_pic():
     pic_list = driver.find_elements_by_css_selector('#img-grid-container > div.grid > a.gallery-content')
     today_date = get_report_date()
@@ -67,6 +68,7 @@ def download_all_pic():
         urllib.request.urlretrieve(pic_url_parse, "./images/" + download_file_name)
         print(download_file_name + " file saved")
 
+# 알림장 목록에서 알림장 선택
 def select_card_and_download(idx):
     card_list = driver.find_elements_by_css_selector('div.report-list-wrapper > a > div.card')
     card_list[idx].click()
@@ -82,13 +84,15 @@ def select_card_and_download(idx):
     driver.find_element_by_css_selector('div.button-group-wrapper > div.pull-right > a.btn.btn-default > i.kn.kn-list').click()
 
 
-
+# 현 페이지의 알림장 목록 갯수 count
 def retrieve_card_cnt():
     card_cnt = driver.find_elements_by_css_selector('div.report-list-wrapper > a > div.card')
     return card_cnt
+# 총 페이지 수 count
 def retrieve_max_page_cnt():
     max_page_cnt = driver.find_elements_by_css_selector('ul.pagination-sm > li > a')[-2].get_attribute('text')
     return (int(max_page_cnt))
+# 알림장 작성 일자 파싱
 def get_report_date():
     report_date = driver.find_element_by_css_selector('div.content > div.sub-header > h3.sub-header-title').get_attribute('innerHTML')
     this_time_t = datetime.datetime.strptime(report_date.strip()[:-4], '%Y년 %m월 %d일')
@@ -104,21 +108,14 @@ if __name__ =="__main__":
     to_yester_album()
     
     card_cnt = len(driver.find_elements_by_css_selector('div.report-list-wrapper > a > div.card'))
-
+    # 페이지 별 이동
     for idx in range(start_cnt , retrieve_max_page_cnt()):
         driver.find_element_by_link_text(str(idx+1)).click()
         
         for idx in range(card_cnt):
             select_card_and_download(idx)
-        
+    # 알림장 선생님 글 저장     
     with open('comments.json', 'w', encoding="utf-8") as outfile:
         json.dump(comment_json, outfile, ensure_ascii=False)
 
-    '''
-    req = driver.page_source
-    soup = BeautifulSoup(req, 'html.parser')
-    information_list = soup.select(".report-list-wrapper > a")
-    for information in information_list:
-        print(information.attrs['href'])
-    '''
-    # driver.quit()
+    driver.quit()
