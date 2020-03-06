@@ -13,6 +13,7 @@ import json
 
 user_id = "user_id"
 user_pwd = "user_pwd"
+start_cnt = 1;
 comment_json = []
 
 with open('config.json') as config_file:
@@ -23,7 +24,7 @@ with open('config.json') as config_file:
 
 
 options = webdriver.ChromeOptions() # 크롬 옵션 객체 생성
-#options.add_argument('headless') # headless 모드 설정
+options.add_argument('headless') # headless 모드 설정
 
 driver = webdriver.Chrome("./chromedriver.exe", options=options)
 
