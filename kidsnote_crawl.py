@@ -13,9 +13,10 @@ import json
 
 user_id = "user_id"
 user_pwd = "user_pwd"
-start_cnt = 1;
+start_cnt = 1
 comment_json = []
 
+# config.json에서 ID/PW 파싱
 with open('config.json') as config_file:
     data = json.load(config_file)
     user_id = data['user_id']
@@ -110,6 +111,7 @@ if __name__ =="__main__":
     card_cnt = len(driver.find_elements_by_css_selector('div.report-list-wrapper > a > div.card'))
     # 페이지 별 이동
     for idx in range(start_cnt , retrieve_max_page_cnt()):
+        # 다음 페이지로 이동
         driver.find_element_by_link_text(str(idx+1)).click()
         
         for idx in range(card_cnt):
