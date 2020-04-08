@@ -6,6 +6,9 @@
 * config.json 생성 및 Kidsnote 계정 정보 입력
 
 
+## 결과 파일
+* 사진 파일
+* 선생님 글 (json 포멧)
 
 
 
