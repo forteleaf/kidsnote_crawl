@@ -13,8 +13,8 @@ import json
 
 user_id = "user_id"
 user_pwd = "user_pwd"
-start_cnt = 1
-comment_json = []
+start_cnt = 0
+comment_json = {}
 
 # config.json에서 ID/PW 파싱
 with open('config.json') as config_file:
@@ -74,7 +74,7 @@ def select_card_and_download(idx):
     card_list = driver.find_elements_by_css_selector('div.report-list-wrapper > a > div.card')
     card_list[idx].click()
     
-    comment_json.append({"date":get_report_date(), "comment":read_comment()})
+    comment_json[get_report_date()] = read_comment()
     
     soup = BeautifulSoup(driver.page_source, 'html.parser')
     information_list = soup.select("#img-grid-container > div.grid > a.gallery-content")
@@ -104,8 +104,16 @@ def get_report_date():
 
 
 if __name__ =="__main__":
+    #로그인
     login()
+    
+    #팝업 해제를 위한 화면 refresh
+    driver.refresh()
+    
+    #호칭 설정
     choose_family_role()
+    
+    #추억상자로 이동
     to_yester_album()
     
     card_cnt = len(driver.find_elements_by_css_selector('div.report-list-wrapper > a > div.card'))
@@ -116,6 +124,7 @@ if __name__ =="__main__":
         
         for idx in range(card_cnt):
             select_card_and_download(idx)
+    
     # 알림장 선생님 글 저장     
     with open('comments.json', 'w', encoding="utf-8") as outfile:
         json.dump(comment_json, outfile, ensure_ascii=False)
