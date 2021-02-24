@@ -26,8 +26,12 @@ with open('config.json') as config_file:
 
 options = webdriver.ChromeOptions() # 크롬 옵션 객체 생성
 options.add_argument('headless') # headless 모드 설정
+options.add_argument('lang=ko')
 
+# window
 driver = webdriver.Chrome("./chromedriver.exe", options=options)
+# for mac
+#driver = webdriver.Chrome("./chromedriver", options=options)
 
 
 # config.json의 ID/PW를 통한 로그인

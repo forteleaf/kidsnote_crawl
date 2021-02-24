@@ -6,6 +6,7 @@
 * Selenium Web Driver 설치 https://chromedriver.chromium.org/downloads
 * config.json 생성 및 Kidsnote 계정 정보 입력
 
+현재 사용하고 있는 버전을 설치 ChromeDriver 88.0.4324.96
 
 ## 결과 파일
 * 사진 파일
